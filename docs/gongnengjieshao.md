@@ -2,11 +2,11 @@
 ### 2.1 区块结构介绍
 区块结构分为两部分，即区块头和区块体。区块头就是simplechain中的区块链部分。它保存了前一个区块（也可称为父区块）的哈希值，通过区块头的连接形成了一条由密码学背书的链。区块体包含了此区块中记录的一系列交易，以及叔块（ommer）区块头列表。
 
-![RUNOOB 图标](images/区块结构.png)
+![RUNOOB 图标](images/qkjg.png)
 
 #### 2.1.1 区块头
 
-![RUNOOB 图标](images/区块头.png)
+![RUNOOB 图标](images/qkt1.png)
 
 - stateRoot：世界状态树的根节点哈希值（在所有交易被执行后）。
 - transactionsRoot：交易树根节点的哈希值。这棵树包含了区块体的所有交易。
@@ -17,7 +17,7 @@
 
 #### 2.1.2 区块体
 
-![RUNOOB 图标](images/区块体.png)
+![RUNOOB 图标](images/qkt2.png)
 
 区块体内以MPT的形式，存储着区块内的全部交易信息，并最终产生transactionsRoot。每个区块能容纳多少笔交易与每笔交易的gasuse以及整个区块的gaslimt有关。
 
@@ -25,15 +25,15 @@
 #### 2.2.1节点发现
 点对点（P2P）网络是一种网络覆盖层（overlaynetwork）——就是说，它是建立在公开互联网之上的。从数学的角度来说，P2P网络可以被视作一个有向图G=(V,E)，其中V是网络中的对等节点集合，E是对等节点所连成的边的集合（也即节点间连接的集合）。每个对等节点p都有一个独一无二的标识号pid。集合E中的边（p，q）指p可通过直接相连的路径向q发送消息；也就是说，p使用q的pid作为目的地址，在网络之上向q发送消息。尽管在底层的TCP/IP网络中，相似的IP地址可以转译为在地理位置上相互接近，但很少有这么明确的直接关联。
 
-![RUNOOB 图标](images/节点发现1.png)
+![RUNOOB 图标](images/jdfx1.png)
 
 理想情况下，所有的对等节点间都应该有一条路径相连。但因为每个节点对网络拓扑和其他对等节点只有一个不完整的视图，所以网络覆盖层需要中间节点将消息转发至正确目的。图的结构为每对节点提供了多条中间路径，因此就算对等节点改变，也可通过图的连通性提供网络的恢复能力。对每个对等节点来说，图的连通性通过与其他对等节点的邻接关系来反映。当对等节点加入或者离开网络，邻接的对等节点可能会持有不正确的邻接信息。因此使用网络覆盖层维护机制（Overlaymaintenancemechanisms）保存更新的邻接信息，使得所有节点间保持连通性。
 
-![RUNOOB 图标](images/节点发现2.png)
+![RUNOOB 图标](images/jdfx2.png)
 
 P2P网络中的参与者向其他网络参与者提供部分资源。不需要中心化的协调者，每个对等节点都可贡献计算周期（CPU），磁盘存储和网络带宽。传统的节点-服务器模型中，服务器提供资源，节点使用资源；与之相对的，在P2P网络中，对等节点既是网络资源的供应者，也是消费者。因此，P2P网络可以很好地解决节点-服务器模型下的一些短板，比如可扩展性和单点故障。
 
-![RUNOOB 图标](images/节点发现3.png)
+![RUNOOB 图标](images/jdfx3.png)
 
 一般来说，P2P网络会有一个门槛，节点的资源贡献高于这个门槛才能加入网络。度量资源贡献的标准应该是公平的，比如说，要求网络中每个对等节点的平均贡献应该在P2P系统总体平均值的统计范围内等。资源贡献应该是双方互惠的。付出贡献后可得到的利益，吸引着用户加入P2P应用。
 
@@ -41,13 +41,13 @@ simplechain联盟链是基于一种覆盖层维护机制（称作Kademlia分布�
 
 Kademlia：simplechain联盟链中，每个节点都配备有一个enodeID，之后将此ID用SHA3算法散列为一个256位的值。Kademlia使用XOR操作定义距离，因此两个256位的数字之间的距离是他们的按位异或值（bitwiseexclusiveOR）。每个对等节点都拥有一个包含256个不同的桶（buckets）的数据结构，每个桶i中存储与本节点距离在2i-1到2i之间的16个节点。为了发现一个新的对等节点，simplechain节点选择自己作为目标x，从桶中寻找到16个与目标x最近的节点，之后请求这16个节点，让它们从自己的桶中各找出16个与目标x“更近”的节点并返回，这样以来，会得到至多16x16个新发现的节点。之后请求这16x16个新发现的节点中离目标x最近的16个节点，让它们返回与x更近的16个节点。这个过程持续迭代，直到没有新节点被发现。
 
-![RUNOOB 图标](images/节点发现4.png)
+![RUNOOB 图标](images/jdfx4.png)
 
-![RUNOOB 图标](images/节点发现5.png)
+![RUNOOB 图标](images/jdfx5.png)
 
 对等节点间通信：simplechain联盟链使用UDP连接交换P2P网络的信息。有4种类型的UDP消息。一条ping消息请求一条pong消息作为返回。此对消息用来判断相邻节点是否可响应。一条findnode消息请求一条neighbors消息（其中包含16个已经被响应节点知晓的节点列表）作为返回。当建立好对等节点的连接之后，节点通过加密和认证的TCP连接来交换区块链信息。
 
-![RUNOOB 图标](images/节点发现6.png)
+![RUNOOB 图标](images/jdfx6.png)
 
 数据结构：节点用两种数据结构存储其他节点的信息。第一种是称作db的长期数据库，它存储在磁盘内，节点重启之后数据也是持久存在的。db中包含节点交互过的每个节点信息。db的每条记录包含节点ID，IP地址，TCP端口，UDP端口，（此节点）最后一次向（记录中）节点发送ping的时间，最后一次从节点收到pong的时间，节点响应findnode消息的失败次数。如果最后一次从一个节点收到pong消息的时间超过了一天，此节点将会被移出db。第二种数据结构是称作table的短期数据库。当节点重启时table是空的。table包含256个桶，每个桶存储至多16条记录。每条记录存储其他simplechain节点的信息——节点的ID，IP地址，TCP端口和UDP端口。如果记录中的某个节点对于findnode消息连续响应失败，多于4次时将被移出table。
 
@@ -57,7 +57,7 @@ RLPx协议：simplechain联盟链网络节点间的通信采用P2P线上协议�
 
 #### 2.2.2 节点加入网络
 
-![RUNOOB 图标](images/区块数据同步1.png)
+![RUNOOB 图标](images/qksjtb1.png)
 
 先大致讲下同步流程，以新加入网络的节点A和节点B为例：
 - 1.两个节点先hadeshake同步下各自的genesis、td、head等信息。
@@ -90,7 +90,7 @@ RLP：RLP(RecursiveLengthPrefix）是一种编码算法，用于编码任意的�
 
 #### 2.3.2存储整体结构
 
-![RUNOOB 图标](images/存储整体结构.png)
+![RUNOOB 图标](images/ztccjg.png)
 
 #### 2.3.3 世界状态树
 
@@ -101,7 +101,7 @@ simplechain链中所有的账户信息都体现在世界状态之中，并由世
 - **合约账户(Contract account)：**
 被它们的合约代码控制且有代码与之关联。合约账户不可以自己发起一个交易，只能被外部账户调用。
 
-![RUNOOB 图标](images/世界状态树.png)
+![RUNOOB 图标](images/sjzts.png)
 
 - **nonce：**
 从此地址发送出去的交易数量或者此账号产生的合约创建操作。
@@ -115,11 +115,11 @@ simplechain链中所有的账户信息都体现在世界状态之中，并由世
 #### 2.3.4 账户状态树
 账户存储树是保存与账户相关联数据的结构。该项只有合约账户才有，而在 EOA 中，storageRoot 留空、 codeHash 则是一串空字符串的哈希值。所有智能合约的数据都以 32 字节映射的形式保存在账户存储树中。账户状态中的 storageRoot区域负责维持账户存储树根节点哈希值。可以理解为保存Solidity智能合约中的状态变量值。
 
-![RUNOOB 图标](images/账户状态树.png)
+![RUNOOB 图标](images/zhzts.png)
 
 多个区块的MPT树共享了账户状态，子块状态树和父块状态树的差别在于它指向了在子区块中被改变了的账户。这样节省了总的存储空间，方便了块的回滚操作。例如某个智能合约账户中，智能合约的变量值由29改变成了45。
 
-![RUNOOB 图标](images/账户状态树2.png)
+![RUNOOB 图标](images/zhzts2.png)
 
 #### 2.3.5 总结
 总体而言，simplechain有四种前缀树：
@@ -163,7 +163,7 @@ logs | 此交易的日志
 #### 2.4.3 交易流程
 交易——区块链系统的核心，负责记录区块链上发生的一切。区块链引入智能合约后，交易便超出价值转移的原始定义，其更加精准的定义应该是区块链中一次事务的数字记录。无论大小事务，都需要交易的参与。
 
-![RUNOOB 图标](images/交易流程.png)
+![RUNOOB 图标](images/jylc.png)
 
 ##### 交易发起
 用户的请求给到客户端后，客户端会构建出一笔有效交易，交易中包括以下关键信息：
@@ -174,12 +174,12 @@ logs | 此交易的日志
 
 之后，区块链客户端会再向交易填充一些必要的字段，如用于防交易重放的交易ID及blockLimit。交易构造完成后，客户端随后便通过RPC信道将交易发送给节点。
 
-![RUNOOB 图标](images/交易发起.png)
+![RUNOOB 图标](images/jjfq.png)
 
 ##### 交易池
 区块链交易被发送到节点后，节点会通过验证交易签名的方式来验证一笔交易是否合法。若一笔交易合法，则节点会进一步检查该交易是否重复出现过，若从未出现过，则将交易加入交易池缓存起来。若交易不合法或交易重复出现，则将直接丢弃交易。
 
-![RUNOOB 图标](images/交易池.png)
+![RUNOOB 图标](images/jyc.png)
 
 ##### 交易广播
 节点在收到交易后，除了将交易缓存在交易池外，节点还会将交易广播至该节点已知的其他节点。
@@ -189,14 +189,14 @@ logs | 此交易的日志
 ##### 交易打包
 为了提高交易处理效率，同时也为了确定交易之后的执行顺序保证事务性，当交易池中有交易时，Sealer线程负责从交易池中按照先进先出的顺序取出一定数量的交易，组装成待共识区块，随后待共识区块会被发往各个节点进行处理。
 
-![RUNOOB 图标](images/交易打包.png)
+![RUNOOB 图标](images/jyc.png)
 
 ##### 交易执行
 节点在收到区块后，会调用区块验证器把交易从区块中逐一拿出来执行。执行引擎就会把交易交给EVM（以太坊虚拟机）执行。
 
 交易可能会执行成功，也可能因为逻辑错误或Gas不足等原因执行失败。交易执行的结果和状态会封装在交易回执中返回。
 
-![RUNOOB 图标](images/交易执行.png)
+![RUNOOB 图标](images/jyzx.png)
 
 ##### 交易共识
 区块链要求节点间就区块的执行结果达成一致才能出块。一般采用PBFT算法、POA、RAFT保证整个系统的一致性。具体共识描述见共识机制模块。
@@ -210,7 +210,7 @@ logs | 此交易的日志
 #### 2.5.1 POA共识
 **POA：**
 由选定的一组权威节点（validator）负责轮流出块，并且可通过投票增加或删除出块节点，普通节点从validator处同步账本。一般适用于有强中心化机构做背书，或者主导的的联盟链。
-![RUNOOB 图标](images/Poa共识.png)
+![RUNOOB 图标](images/poa.png)
 
 
 基于POA的网络、事务和区块，是由一些经认可的账户认证的，这些被认可的账户称为“验证者”（Validator）。验证者运行的软件，支持验证者将交易（transaction）置于区块中。
@@ -224,45 +224,45 @@ logs | 此交易的日志
 #### 2.5.2 RAFT共识
 
 RAFT共识：每个节点有三种状态：Follower，Candidate，Leader，状态之间是互相转换的，节点的主要功能是选举Leader和同步账本。
-![RUNOOB 图标](images/raft共识1.png)
+![RUNOOB 图标](images/raft1.png)
 
 ##### 选举节点
 假设现在有如图5个节点，5个节点一开始的状态都是 Follower，在一个节点倒计时结束 (Timeout) 后，这个节点的状态变成 Candidate 开始选举，它给其他几个节点发送选举请求 (RequestVote)。
 
-![RUNOOB 图标](images/raft共识2.png)
-![RUNOOB 图标](images/raft共识3.png)
+![RUNOOB 图标](images/raft2.png)
+![RUNOOB 图标](images/raft3.png)
 
 其他四个节点都返回成功，这个节点的状态由 Candidate 变成了 Leader，并在每个一小段时间后，就给所有的 Follower 发送一个 Heartbeat 以保持所有节点的状态，Follower 收到 Leader 的 Heartbeat 后重设 Timeout。
 
 ##### Leader出现问题重新选举
 当Leader  网络异常通讯中断了，其他四个 Follower 将进行重新选主。
-![RUNOOB 图标](images/raft共识4.png)
+![RUNOOB 图标](images/raft4.png)
 
 在选出一个新的 Leader 后，原来的 Leader 网络恢复了又重新加入了。重新加入的 Leader 是第一轮选举 (Term 1) 选出来的，而现在的 Leader 则是 Term 2，所以原来的 Leader 会自觉降级为 Follower。
-![RUNOOB 图标](images/raft共识5.png)
+![RUNOOB 图标](images/raft5.png)
 ![RUNOOB 图标](images/raft共识6.png)
 ![RUNOOB 图标](images/raft共识7.png)
 
 ##### 同步账本
 一开始，Leader 和 两个 Follower 都没有任何数据，客户端发送请求给 Leader，储存数据 “sally”，Leader 先将数据写在本地日志，这时候数据还是 Uncommitted (还没最终确认，红色表示)。
-![RUNOOB 图标](images/raft共识8.png)
+![RUNOOB 图标](images/raft8.png)
 
 Leader 给两个 Follower 发送 AppendEntries 请求，数据在 Follower 上没有冲突，则将数据暂时写在本地日志，Follower 的数据也还是 Uncommitted。Follower 将数据写到本地后，返回 OK。Leader 收到后成功返回，只要收到的成功的返回数量超过半数 (包含Leader)，Leader 将数据 “sally” 的状态改成 Committed。
-![RUNOOB 图标](images/raft共识9.png)
+![RUNOOB 图标](images/raft9.png)
 
 Leader 再次给 Follower 发送 AppendEntries 请求，收到请求后，Follower 将本地日志里 Uncommitted 数据改成 Committed。这样就完成了账本同步的过程，三个节点的数据是一致的。
 
-![RUNOOB 图标](images/raft共识10.png)
+![RUNOOB 图标](images/raft10.png)
 
 ##### 网络临时中断环境下同步账本
 在 Network Partition 的情况下。将节点分成两边，一边有两个节点，一边三个节点,部分节点之间没办法互相通信。两个节点这边已经有 Leader 了，来自客户端的数据 “bob” 通过 Leader 同步到 Follower。因为只有两个节点，少于3个节点，所以 “bob” 的状态仍是 Uncommitted。所以在这里，服务器会返回错误给客户端。
-![RUNOOB 图标](images/raft共识11.png)
+![RUNOOB 图标](images/raft11.png)
 
 另外一个 Partition 有三个节点，进行重新选主。客户端数据 “tom” 发到新的 Leader，通过和上节网络状态下相似的过程，同步到另外两个 Follower。因为这个 Partition 有3个节点，超过半数，所以数据 “tom” 都 Commit 了。
-![RUNOOB 图标](images/raft共识12.png)
+![RUNOOB 图标](images/raft12.png)
 
 网络状态恢复，5个节点再次处于同一个网络状态下。但是这里出现了数据冲突 “bob" 和 “tom"，Leader 1 自动降级为 Follower，因为这个 Partition 的数据 “bob” 没有 Commit，返回给客户端的是错误，客户端知道请求没有成功，所以 Follower 在收到 AppendEntries 请求时，可以把 “bob“ 删除，然后同步 ”tom”，通过这么一个过程，就完成了在 Network Partition 情况下的账本同步，保证了数据的一致性。
-
+![RUNOOB 图标](images/raft13.png)
 
 #### 2.5.3 PBFT共识
 BFT（拜占庭将军问题）是分布式计算中的一个经典问题。问题描述为，几位拜占庭将军分别率领部队合力包围了一座城市。他们必须一致决定是否发起攻城。如果一些将军在没有其他将军参与的情况下决定发起攻城，那么他们的行动将以失败告终。将军们之间相互隔着一定的距离，必须依靠信息传递进行交流。首个提出的该问题解决方案称为“实用拜占庭容错”（PBFT）
@@ -270,7 +270,7 @@ BFT（拜占庭将军问题）是分布式计算中的一个经典问题。问�
 ##### 核心流程
 PBFT共识主要包括Pre-prepare、Prepare和Commit三个阶段：
 
-![RUNOOB 图标](images/pbft共识.png)
+![RUNOOB 图标](images/pbft.png)
 
 - Pre-prepare：负责执行区块，产生签名包，并将签名包广播给所有共识节点；
 - Prepare：负责收集签名包，某节点收集满2*f+1的签名包后，表明自身达到可以提交区块的状态，开始广播Commit包；
@@ -279,7 +279,7 @@ PBFT共识主要包括Pre-prepare、Prepare和Commit三个阶段：
 ##### leader打包区块
 PBFT共识算法中，共识节点轮流出块，每一轮共识仅有一个leader打包区块，节点计算当前leader索引与自己索引相同后，就开始打包区块。区块打包主要由PBFTSealer线程完成，Sealer线程的主要工作如下图所示：
 
-![RUNOOB 图标](images/pbft共识1.png)
+![RUNOOB 图标](images/pbft1.png)
 
 - **产生新的空块:**
 通过区块链(BlockChain)获取当前最高块，并基于最高块产生新空块(将新区块父哈希置为最高块哈希，时间戳置为当前时间，交易清空)；

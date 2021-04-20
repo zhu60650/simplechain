@@ -1,0 +1,7 @@
+site_name: Simplechain联盟链介绍
+nav:
+  - 整体概述: zhengtijieshao.md
+  - Simplechain联盟链功能模块介绍: gongnengjieshao.md
+  - Simplechain联盟链关键特性: texingjieshao.md
+  - API接口介绍: api.md
+theme: readthedocs
