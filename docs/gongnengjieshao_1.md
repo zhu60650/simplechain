@@ -22,6 +22,7 @@
 区块体内以MPT的形式，存储着区块内的全部交易信息，并最终产生transactionsRoot。每个区块能容纳多少笔交易与每笔交易的gasuse以及整个区块的gaslimt有关。
 
 ### 2.2 网络模块
+由于高性能联盟链的TPS最高可达20000+TPS，网络模块的负载增加，因此需要设计新的拓扑状网络消息传输结构来进行消息的传递。在PBFT共识中，节点的角色分为观察节点与共识节点，观察节点与共识节点将根据不同的消息进行不同地网络拓扑，以在尽可能地降低共识节点网络载和保持网络健壮性之间找到平衡点。
 #### 2.2.1节点发现
 点对点（P2P）网络是一种网络覆盖层（overlaynetwork）——就是说，它是建立在公开互联网之上的。从数学的角度来说，P2P网络可以被视作一个有向图G=(V,E)，其中V是网络中的对等节点集合，E是对等节点所连成的边的集合（也即节点间连接的集合）。每个对等节点p都有一个独一无二的标识号pid。集合E中的边（p，q）指p可通过直接相连的路径向q发送消息；也就是说，p使用q的pid作为目的地址，在网络之上向q发送消息。尽管在底层的TCP/IP网络中，相似的IP地址可以转译为在地理位置上相互接近，但很少有这么明确的直接关联。
 
@@ -60,14 +61,14 @@ RLPx协议：simplechain联盟链网络节点间的通信采用P2P线上协议�
 ![RUNOOB 图标](images/qksjtb1.png)
 
 先大致讲下同步流程，以新加入网络的节点A和节点B为例：
-- 1.两个节点先hadeshake同步下各自的genesis、td、head等信息。
-- 2.连接成功后，节点B发送TxMsg消息把自己的txpool中的tx同步给节点A
-- 3.然后各自循环监听对方的消息；
-- 4.节点A此时使用fast sync同步数据，依次发送GetBlockHeadersMsg、GetBlockBodiesMsg、GetReceiptsMsg、GetNodeDataMsg获取block header、block body、receipt和state数据；
-- 5.节点B对应的返回BlockHeadersMsg、BlockBodiesMsg、ReceiptsMsg、NodeDataMsg。
-- 6.节点A收到数据把header和body组成block存入自己的leveldb数据库，一并存入receipts和state数据节点B挖出block后会向A同步区块，发送NewBlockMsg或者NewBlockHashesMsg(取决于节点A位于节点B的节点列表位置），如果是NewBlockMsg，那么节点A直接验证完存入本地；如果是NewBlockHashesMsg，节点A会交给fetcher去获取header和body，然后再组织成block存入本地。
+- 1.当自身为被动与对方节点进行连接(即对方主动连接此节点)，则调用合约查询对方是否是合法节点。
+- 2.两个节点先hadeshake同步下各自的genesis、td、head等信息。
+- 3.连接成功后，节点B发送TxMsg消息把自己的txpool中的tx同步给节点A
+- 4.然后各自循环监听对方的消息；
+- 5.节点A此时使用fast sync同步数据，依次发送GetBlockHeadersMsg、GetBlockBodiesMsg、GetReceiptsMsg、GetNodeDataMsg获取block header、block body、receipt和state数据；
+- 6.节点B对应的返回BlockHeadersMsg、BlockBodiesMsg、ReceiptsMsg、NodeDataMsg。
+- 7.节点A收到数据把header和body组成block存入自己的leveldb数据库，一并存入receipts和state数据节点B挖出block后会向A同步区块，发送NewBlockMsg或者NewBlockHashesMsg(取决于节点A位于节点B的节点列表位置），如果是NewBlockMsg，那么节点A直接验证完存入本地；如果是NewBlockHashesMsg，节点A会交给fetcher去获取header和body，然后再组织成block存入本地。
 
-Tls：确保通信安全，节点交互时实现证书验证，只有同一CA签发的证书才能互相连接。
 
 #### 2.2.3 区块账本同步方式
 由于随着simplechain区块数据的越来越多，全节点同步，也就是“full”这种数据同步模式实在是太慢了，往往需要一周甚至更多时间。但simplechain网络又需要这些全节点去保存可追溯的历史数据。
